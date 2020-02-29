@@ -24,13 +24,14 @@ def is_csv_valid(user_input):
     path = Path(user_input)
     while path.is_file() is False:
         path = Path(input("In order to run a check between the G-Rack and the DELTA Spire inventory, you will need\n"
-                         "to export a CVS file from DELTA Spire. Once you've done that, enter the path, or drag the file\n"
-                         "into the terminal, then press enter. The results will appear in ~/tapelist and should open in your\n"
-                         "web browser automatically.\n\n"
-                         "CSV File Path:"))
+                          "to export a CVS file from DELTA Spire. Once you've done that, enter the path, or drag the file\n"
+                          "into the terminal, then press enter. The results will appear in ~/tapelist and should open in your\n"
+                          "web browser automatically.\n\n"
+                          "CSV File Path:"))
         is_csv_valid(path)
     if path.is_file() is True:
         if path.suffix == '.csv' or path.suffix == '.CSV':
+            print('true')
             return path
 
 
@@ -96,7 +97,8 @@ def main():
                      "to export a CVS file from DELTA Spire. Once you've done that, enter the path, or drag the file\n"
                      "into the terminal, then press enter. The results will appear in ~/tapelist and should open in your\n"
                      "web browser automatically.\n\n"
-                     "CSV File Path:")
+                     "CSV File Path:").replace("\\","")
+    print(csv_file)
     csv_file = is_csv_valid(csv_file)  # Check is csv file is valid
     tapes_from_inventory_by_camera = get_tapes_by_camera(tape_list=get_tapes_from_csv(csv_file),
                                                          camera_list=camera_keywords)
@@ -106,7 +108,6 @@ def main():
     print('Tapes from g-rack: {tapes}'.format(tapes=tapes_from_g_rack_by_camera))
     write_diff_table(local_tapes=tapes_from_g_rack_by_camera, inventory_tapes=tapes_from_inventory_by_camera)
     subprocess.check_call(['open', output_path])
-
 
 if __name__ == '__main__':
     main()
