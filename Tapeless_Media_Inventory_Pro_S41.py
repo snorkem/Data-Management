@@ -25,7 +25,7 @@ def is_csv_valid(user_input):
     while path.is_file() is False:
         path = Path(input("You entered an invalid file path. Try again, or simply drag the csv file in from the finder."
                           "\n\n"
-                          "CSV File Path:").replace("\\",""))
+                          "CSV File Path:").replace("\\", ""))
         is_csv_valid(path)
     if path.is_file() is True:
         if path.suffix == '.csv' or path.suffix == '.CSV':
@@ -94,7 +94,7 @@ def main():
                      "to export a CVS file from DELTA Spire. Once you've done that, enter the path, or drag the file\n"
                      "into the terminal, then press enter. The results will appear in ~/tapelist and should open in your\n"
                      "web browser automatically.\n\n"
-                     "CSV File Path:").replace("\\","")
+                     "CSV File Path:").replace("\\", "")
     print(csv_file)
     csv_file = is_csv_valid(csv_file)  # Check is csv file is valid
     tapes_from_inventory_by_camera = get_tapes_by_camera(tape_list=get_tapes_from_csv(csv_file),
