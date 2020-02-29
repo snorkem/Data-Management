@@ -31,7 +31,6 @@ def is_csv_valid(user_input):
         is_csv_valid(path)
     if path.is_file() is True:
         if path.suffix == '.csv' or path.suffix == '.CSV':
-            print('true')
             return path
 
 
