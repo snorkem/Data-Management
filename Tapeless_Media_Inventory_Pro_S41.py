@@ -20,6 +20,15 @@ output_path = str(working_dir / '{time}_{file_name}'.format(time=dt_string, file
 ######### End Global Variables #########
 
 
+def is_g_rack_connected(path : Path):
+    if path.exists() and path.is_dir():
+        print('G-Rack path valid...')
+        return True
+    else:
+        print('G-Rack path not valid. Check the G-Rack is mounted, or check the path variable in the program. Quiting.')
+        exit(0)
+
+
 def get_file_path():
     path = Path(input("CSV File Path:").replace("\\", "").rstrip())
     return path
@@ -62,9 +71,18 @@ def get_tapes_by_camera(tape_list: list, camera_list: list):
     tapes = []
     final_tape_list = []
     for camera in camera_list:
-        for tape in tape_list:
-            if camera in tape:
-                tapes.append(tape)
+        if camera != 'WAV' and camera != 'WA':
+            for tape in tape_list:
+                if camera in tape:
+                    tapes.append(tape)
+        else:
+            for tape in tape_list:
+                if camera == tape[:3]:
+                    tapes.append(tape)
+                elif camera == tape[:2] and tape[2] != 'V':
+                    tapes.append(tape)
+
+
     # for tape in tapes_by_camera:
         # clean it up similar to Asher's regex
         # append to final_tape_list
@@ -97,6 +115,7 @@ def write_diff_table(local_tapes, inventory_tapes):
 
 
 def main():
+    is_g_rack_connected(PATH_TO_G_RACK)
     print("In order to run a check between the G-Rack and the DELTA Spire inventory, you will need\n"
           "to export a CVS file from DELTA Spire. Once you've done that, enter the path, or drag the file\n"
           "into the terminal, then press enter. The results will appear in ~/tapelist and should open in your\n"
@@ -116,6 +135,7 @@ def main():
     print('Tapes from g-rack: {tapes}'.format(tapes=tapes_from_g_rack_by_camera))
     write_diff_table(local_tapes=tapes_from_g_rack_by_camera, inventory_tapes=tapes_from_inventory_by_camera)
     subprocess.check_call(['open', output_path])
+
 
 if __name__ == '__main__':
     main()
