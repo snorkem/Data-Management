@@ -37,12 +37,10 @@ def get_file_path():
 def is_csv_valid(user_input):
     if user_input is None:
         return False
-    else:
-        path = user_input
-    if path.is_file() is False:
+    elif user_input.is_file() is False:
         return False
-    elif path.is_file():
-        if path.suffix == '.csv' or path.suffix == '.CSV':
+    elif user_input.is_file():
+        if user_input.suffix == '.csv' or user_input.suffix == '.CSV':
             return True
         else:
             return False
@@ -53,7 +51,10 @@ def is_csv_valid(user_input):
 def get_tapes_from_csv(csv_file):
     with open(csv_file, newline='') as f:
         reader = csv.DictReader(f)
-        inventory_ids = [row['ID'] for row in reader]
+        try:
+            inventory_ids = [row['ID'] for row in reader]
+        except csv.Error:
+            print('Something is wrong with the CSV file. Check that it is formatted properly with an "ID" column.')
     inventory_ids.sort(reverse=True)
     return inventory_ids
 
@@ -81,8 +82,6 @@ def get_tapes_by_camera(tape_list: list, camera_list: list):
                     tapes.append(tape)
                 elif camera == tape[:2] and tape[2] != 'V':
                     tapes.append(tape)
-
-
     # for tape in tapes_by_camera:
         # clean it up similar to Asher's regex
         # append to final_tape_list
@@ -122,8 +121,7 @@ def main():
           "web browser automatically.\n\n")
     if reports_dir.exists() is False:
         reports_dir.mkdir(parents=True)
-    # csv_file = is_csv_valid(csv_file)  # Check is csv file is valid and return path
-    csv_file = get_file_path()
+    csv_file = get_file_path() # Check is csv file is valid and return path
     while is_csv_valid(csv_file) is False:
         print('Invalid path or file. Try again.')
         csv_file = get_file_path()
