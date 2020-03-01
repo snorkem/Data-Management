@@ -53,8 +53,10 @@ def get_tapes_from_csv(csv_file):
         reader = csv.DictReader(f)
         try:
             inventory_ids = [row['ID'] for row in reader]
-        except csv.Error:
-            print('Something is wrong with the CSV file. Check that it is formatted properly with an "ID" column.')
+        except KeyError:
+            print('Something is wrong with the CSV file. Check that it is formatted properly with the tape'
+                  'names in an "ID" column. Quiting...')
+            exit(0)
     inventory_ids.sort(reverse=True)
     return inventory_ids
 
