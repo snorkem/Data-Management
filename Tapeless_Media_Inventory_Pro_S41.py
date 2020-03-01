@@ -20,16 +20,25 @@ output_path = str(working_dir / '{time}_{file_name}'.format(time=dt_string, file
 ######### End Global Variables #########
 
 
+def get_file_path():
+    path = Path(input("CSV File Path:").replace("\\", "").rstrip())
+    return path
+
+
 def is_csv_valid(user_input):
-    path = Path(user_input)
-    while path.is_file() is False:
-        path = Path(input("You entered an invalid file path. Try again, or simply drag the csv file in from the finder."
-                          "\n\n"
-                          "CSV File Path:").replace("\\", ""))
-        is_csv_valid(path)
-    if path.is_file() is True:
+    if user_input is None:
+        return False
+    else:
+        path = user_input
+    if path.is_file() is False:
+        return False
+    elif path.is_file():
         if path.suffix == '.csv' or path.suffix == '.CSV':
-            return path
+            return True
+        else:
+            return False
+    else:
+        print('Something went wrong validating the csv file...')
 
 
 def get_tapes_from_csv(csv_file):
@@ -88,15 +97,17 @@ def write_diff_table(local_tapes, inventory_tapes):
 
 
 def main():
+    print("In order to run a check between the G-Rack and the DELTA Spire inventory, you will need\n"
+          "to export a CVS file from DELTA Spire. Once you've done that, enter the path, or drag the file\n"
+          "into the terminal, then press enter. The results will appear in ~/tapelist and should open in your\n"
+          "web browser automatically.\n\n")
     if reports_dir.exists() is False:
         reports_dir.mkdir(parents=True)
-    csv_file = input("In order to run a check between the G-Rack and the DELTA Spire inventory, you will need\n"
-                     "to export a CVS file from DELTA Spire. Once you've done that, enter the path, or drag the file\n"
-                     "into the terminal, then press enter. The results will appear in ~/tapelist and should open in your\n"
-                     "web browser automatically.\n\n"
-                     "CSV File Path:").replace("\\", "")
-    print(csv_file)
-    csv_file = is_csv_valid(csv_file)  # Check is csv file is valid
+    # csv_file = is_csv_valid(csv_file)  # Check is csv file is valid and return path
+    csv_file = get_file_path()
+    while is_csv_valid(csv_file) is False:
+        print('Invalid path or file. Try again.')
+        csv_file = get_file_path()
     tapes_from_inventory_by_camera = get_tapes_by_camera(tape_list=get_tapes_from_csv(csv_file),
                                                          camera_list=camera_keywords)
     print('Tapes from DELTA SPIRE: {tapes}'.format(tapes=tapes_from_inventory_by_camera))
