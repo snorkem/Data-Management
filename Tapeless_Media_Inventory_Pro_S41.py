@@ -14,7 +14,7 @@ reports_dir = Path(working_dir) / 'zOld_Reports'
 PATH_TO_G_RACK = Path('/Users/Alex/Desktop/ODA/')
 output_html = 'Tapelist_Compare_by_Camera.html'
 now = datetime.now()
-dt_string = now.strftime("%Y-%m-%d_%H-%M-%S")
+dt_string = now.strftime("%Y-%m-%d_%HH-%MM-%SS")
 output_path = str(working_dir / '{time}_{file_name}'.format(time=dt_string, file_name=output_html))
 
 ######### End Global Variables #########
