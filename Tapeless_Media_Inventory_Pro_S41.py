@@ -47,7 +47,7 @@ def is_csv_valid(user_input):
         print('Something went wrong validating the csv file...')
 
 
-def get_tapes_from_csv(csv_file):
+def get_tapes_from_csv(csv_file, sort):
     with open(csv_file, newline='') as f:
         reader = csv.DictReader(f)
         try:
@@ -56,7 +56,7 @@ def get_tapes_from_csv(csv_file):
             print('Something is wrong with the CSV file. Check that it is formatted properly with the tape'
                   'names in an "ID" column. Quiting...')
             exit(0)
-    inventory_ids.sort(reverse=False)
+    inventory_ids.sort(reverse=sort)
     return inventory_ids
 
 
@@ -69,7 +69,7 @@ def get_tapes_from_path(path):
     return tape_names
 
 
-def get_tapes_by_camera(tape_list: list, camera_list: list):
+def get_tapes_by_camera(tape_list: list, camera_list: list, sort_order: bool):
     tapes = []
     final_tape_list = []
     for camera in camera_list:
@@ -89,7 +89,7 @@ def get_tapes_by_camera(tape_list: list, camera_list: list):
         # clean it up similar to Asher's regex
         # append to final_tape_list
     # sort
-    tapes.sort(reverse=False)
+    tapes.sort(reverse=sort_order)
     return tapes
 
 
@@ -116,8 +116,7 @@ def write_diff_table(local_tapes, inventory_tapes):
         out.writelines(out_file)
 
 
-def main():
-    is_g_rack_connected(PATH_TO_G_RACK)
+def get_args():
     # Create the parser
     my_parser = argparse.ArgumentParser(description='Check tapeless media against inventory.')
     # Add the arguments
@@ -125,20 +124,32 @@ def main():
                            metavar='csv',
                            type=str,
                            help='the path to list')
+    my_parser.add_argument('--reverse',
+                           action='store_true',
+                           help='turns on reverse sort order')
     # Execute the parse_args() method
     args = my_parser.parse_args()
-    csv_file = Path(args.csv) # Get CSV file from user argument
+    return args
+
+
+def main():
+    is_g_rack_connected(PATH_TO_G_RACK)
+    is_reverse_sort = False
+    args = get_args()
+    csv_file = Path(args.csv)  # Get CSV file from user argument
+    if args.reverse:
+        is_reverse_sort = True
     if reports_dir.exists() is False:
         reports_dir.mkdir(parents=True)
     # csv_file = get_file_path() # Check is csv file is valid and return path
     while is_csv_valid(csv_file) is False:
         print('Invalid path or file. Try again.')
         csv_file = get_file_path()
-    tapes_from_inventory_by_camera = get_tapes_by_camera(tape_list=get_tapes_from_csv(csv_file),
-                                                         camera_list=camera_keywords)
+    tapes_from_inventory_by_camera = get_tapes_by_camera(tape_list=get_tapes_from_csv(csv_file, is_reverse_sort),
+                                                         camera_list=camera_keywords, sort_order=is_reverse_sort)
     print('Tapes from DELTA SPIRE: {tapes}'.format(tapes=tapes_from_inventory_by_camera))
     tapes_from_g_rack_by_camera = get_tapes_by_camera(tape_list=get_tapes_from_path(PATH_TO_G_RACK),
-                                                      camera_list=camera_keywords)
+                                                      camera_list=camera_keywords, sort_order=is_reverse_sort)
     print('Tapes from g-rack: {tapes}'.format(tapes=tapes_from_g_rack_by_camera))
     write_diff_table(local_tapes=tapes_from_g_rack_by_camera, inventory_tapes=tapes_from_inventory_by_camera)
     subprocess.check_call(['open', output_path])
