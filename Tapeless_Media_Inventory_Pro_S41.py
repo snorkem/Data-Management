@@ -123,11 +123,11 @@ def main():
     # Add the arguments
     my_parser.add_argument('-csv',
                            metavar='csv',
-                           type=Path,
+                           type=str,
                            help='the path to list')
     # Execute the parse_args() method
     args = my_parser.parse_args()
-    csv_file = args.csv # Get CSV file from user argument
+    csv_file = Path(args.csv) # Get CSV file from user argument
     if reports_dir.exists() is False:
         reports_dir.mkdir(parents=True)
     # csv_file = get_file_path() # Check is csv file is valid and return path
