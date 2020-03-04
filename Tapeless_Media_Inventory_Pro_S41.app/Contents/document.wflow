@@ -59,7 +59,7 @@
 				<key>ActionParameters</key>
 				<dict>
 					<key>COMMAND_STRING</key>
-					<string>/usr/local/bin/python3.8 /Users/Alex/Documents/Python\ Projects/Data_Management/Tapeless_Media_Inventory_Pro_S41.py -csv "${@}"</string>
+					<string>/usr/local/bin/python3.8 /Users/Alex/Documents/Python\ Projects/Data_Management/Tapeless_Media_Inventory_Pro_S41.py --csv "${@}"</string>
 					<key>CheckedForUserDefaultShell</key>
 					<true/>
 					<key>inputMethod</key>
