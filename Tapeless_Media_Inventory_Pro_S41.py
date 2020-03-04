@@ -120,7 +120,7 @@ def get_args():
     # Create the parser
     my_parser = argparse.ArgumentParser(description='Check tapeless media against inventory.')
     # Add the arguments
-    my_parser.add_argument('-csv',
+    my_parser.add_argument('--csv',
                            metavar='csv',
                            type=str,
                            help='the path to list')
