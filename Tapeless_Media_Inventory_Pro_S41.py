@@ -14,6 +14,7 @@ working_dir = Path('~/tapelist').expanduser()
 reports_dir = Path(working_dir) / 'zOld_Reports'
 PATH_TO_G_RACK = Path('/Users/Alex/Desktop/ODA/')
 output_html = 'Tapelist_Compare_by_Camera.html'
+column_id = 'ID'
 dt_string = datetime.now().strftime("%Y-%m-%d_%HH-%MM-%SS")
 output_path = str(working_dir / '{time}_{file_name}'.format(time=dt_string, file_name=output_html))
 ######### End Global Variables #########
@@ -51,7 +52,7 @@ def get_tapes_from_csv(csv_file, sort):
     with open(csv_file, newline='') as f:
         reader = csv.DictReader(f)
         try:
-            inventory_ids = [row['ID'] for row in reader]
+            inventory_ids = [row[column_id] for row in reader]
         except KeyError:
             print('Something is wrong with the CSV file. Check that it is formatted properly with the tape'
                   'names in an "ID" column. Quiting...')
