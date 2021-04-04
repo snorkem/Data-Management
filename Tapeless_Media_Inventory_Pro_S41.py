@@ -73,8 +73,10 @@ def get_tapes_from_path(path):
 def get_tapes_by_camera(tape_list: list, camera_list: list, sort_order: bool):
     tapes = []
     final_tape_list = []
+    # In this loop we compare camera list
     for camera in camera_list:
         if camera != 'WA':
+            # Controlling for the tape names with only 2 letters. Parsing those in separate elif conditions.
             for tape in tape_list:
                 if camera in tape[:3]:
                     tapes.append(tape)
