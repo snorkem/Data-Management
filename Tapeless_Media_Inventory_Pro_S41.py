@@ -75,19 +75,29 @@ def get_tapes_by_camera(tape_list: list, camera_list: list, sort_order: bool):
     final_tape_list = []
     # In this loop we compare camera list
     for camera in camera_list:
-        if camera != 'WA':
+        if len(camera) != 3:
             # Controlling for the tape names with only 2 letters. Parsing those in separate elif conditions.
             for tape in tape_list:
                 if camera in tape[:3]:
                     tapes.append(tape)
+                    tape_list.remove(tape)
         elif camera == 'WA':
             for tape in tape_list:
                 if camera == tape[-2:]:
                     tapes.append(tape)
+                    tape_list.remove(tape)
         elif camera == 'CC':
             for tape in tape_list:
                 if camera == tape[:2]:
                     tapes.append(tape)
+                    tape_list.remove(tape)
+        elif camera == 'SD':
+            for tape in tape_list:
+                if camera == tape[:2]:
+                    tapes.append(tape)
+                    tape_list.remove(tape)
+    # add any leftover items to the list
+    tapes.extend(tape_list)
     # sort
     tapes.sort(reverse=sort_order)
     return tapes
