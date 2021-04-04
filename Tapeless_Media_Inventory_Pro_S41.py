@@ -20,7 +20,7 @@ output_path = str(working_dir / '{time}_{file_name}'.format(time=dt_string, file
 ######### End Global Variables #########
 
 
-def is_g_rack_connected(path : Path):
+def is_g_rack_connected(path: Path):
     if path.exists() and path.is_dir():
         print('G-Rack path valid...')
         return True
@@ -86,9 +86,6 @@ def get_tapes_by_camera(tape_list: list, camera_list: list, sort_order: bool):
             for tape in tape_list:
                 if camera == tape[:2]:
                     tapes.append(tape)
-    # for tape in tapes_by_camera:
-        # clean it up similar to Asher's regex
-        # append to final_tape_list
     # sort
     tapes.sort(reverse=sort_order)
     return tapes
@@ -121,10 +118,11 @@ def get_args():
     # Create the parser
     my_parser = argparse.ArgumentParser(description='Check tapeless media against inventory.')
     # Add the arguments
-    my_parser.add_argument('--csv',
+    my_parser.add_argument('csv',
                            metavar='csv',
                            type=str,
-                           help='the path to list')
+                           help='the path to list',
+                           default='~/')
     my_parser.add_argument('--reverse',
                            action='store_true',
                            help='turns on reverse sort order')
@@ -142,10 +140,11 @@ def main():
         is_reverse_sort = True
     if reports_dir.exists() is False:
         reports_dir.mkdir(parents=True)
-    # csv_file = get_file_path() # Check is csv file is valid and return path
+    # Check is csv file is valid and return path
     while is_csv_valid(csv_file) is False:
         print('Invalid path or file. Try again.')
         csv_file = get_file_path()
+    print("CSV file located at: {0}".format(csv_file))
     tapes_from_inventory_by_camera = get_tapes_by_camera(tape_list=get_tapes_from_csv(csv_file, is_reverse_sort),
                                                          camera_list=camera_keywords, sort_order=is_reverse_sort)
     print('Tapes from DELTA SPIRE: {tapes}'.format(tapes=tapes_from_inventory_by_camera))
