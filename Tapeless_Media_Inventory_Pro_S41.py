@@ -26,7 +26,7 @@ def is_g_rack_connected(path: Path):
         return True
     else:
         print('G-Rack path not valid. Check the G-Rack is mounted, or check the path variable in the program. Quiting.')
-        exit(0)
+        exit(1)
 
 
 def get_file_path():
@@ -56,7 +56,7 @@ def get_tapes_from_csv(csv_file, sort):
         except KeyError:
             print('Something is wrong with the CSV file. Check that it is formatted properly with the tape'
                   'names in an "ID" column. Quiting...')
-            exit(0)
+            exit(1)
     inventory_ids.sort(reverse=sort)
     return inventory_ids
 
