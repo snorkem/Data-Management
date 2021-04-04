@@ -133,7 +133,7 @@ def get_args():
     my_parser.add_argument('csv',
                            metavar='csv',
                            type=str,
-                           help='the path to csv list from Delta Spire',
+                           help='The path to csv list from Delta Spire',
                            default='~/')
     my_parser.add_argument('--reverse',
                            action='store_true',
