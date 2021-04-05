@@ -22,7 +22,8 @@ output_path = str(working_dir / '{time}_{file_name}'.format(time=dt_string, file
 
 def is_g_rack_connected(path: Path):
     if path.exists() and path.is_dir():
-        print('G-Rack path valid...')
+        print('Checking G-Rack path...\n'
+              'G-Rack path valid...')
         return True
     else:
         print('G-Rack path not valid. Check the G-Rack is mounted, or check the path variable in the program. Quiting.')
@@ -83,7 +84,7 @@ def get_tapes_by_camera(tape_list: list, camera_list: list, sort_order: bool):
                     tape_list.remove(tape)
         elif camera == 'WA':
             for tape in tape_list:
-                if camera == tape[-2:]:
+                if camera == tape[-2:]:  # Sometimes the WA is at the end (idk why) and we need to check for that.
                     tapes.append(tape)
                     tape_list.remove(tape)
         elif camera == 'CC':
@@ -109,6 +110,7 @@ def write(tapes_by_camera: list, f_out: str):
 
 
 def write_diff_table(local_tapes, inventory_tapes):
+    # Directory checking and cleanup.
     if Path(reports_dir).exists() is False:
         reports_dir.mkdir()
     files = [item for item in working_dir.glob('*/') if item.is_file() and item.suffix == '.html'
@@ -119,6 +121,7 @@ def write_diff_table(local_tapes, inventory_tapes):
             file.unlink()
         except FileNotFoundError:
             os.mkdir(working_dir + '/zOld_Reports')
+    # Make HTML dif file from lists and open it.
     out_file = difflib.HtmlDiff().make_file(fromlines=local_tapes, tolines=inventory_tapes,
                                             fromdesc='G-Rack Tapeless Inventory',
                                             todesc='DELTA Spire Tapeless Inventory')
@@ -144,25 +147,22 @@ def get_args():
 
 
 def main():
-    is_g_rack_connected(PATH_TO_G_RACK)
-    is_reverse_sort = False
     args = get_args()
+    is_g_rack_connected(PATH_TO_G_RACK)
     csv_file = Path(args.csv)  # Get CSV file from user argument
-    if args.reverse:
-        is_reverse_sort = True
     if reports_dir.exists() is False:
         reports_dir.mkdir(parents=True)
     # Check is csv file is valid and return path
-    while is_csv_valid(csv_file) is False:
+    while is_csv_valid(csv_file) is False: 
         print('Invalid path or file. Try again.')
         csv_file = get_file_path()
     print("CSV file located at: {0}".format(csv_file))
-    tapes_from_inventory_by_camera = get_tapes_by_camera(tape_list=get_tapes_from_csv(csv_file, is_reverse_sort),
-                                                         camera_list=camera_keywords, sort_order=is_reverse_sort)
+    tapes_from_inventory_by_camera = get_tapes_by_camera(tape_list=get_tapes_from_csv(csv_file, args.reverse),
+                                                         camera_list=camera_keywords, sort_order=args.reverse)
     print('Tapes from DELTA SPIRE: {tapes}'.format(tapes=tapes_from_inventory_by_camera))
     tapes_from_g_rack_by_camera = get_tapes_by_camera(tape_list=get_tapes_from_path(PATH_TO_G_RACK),
-                                                      camera_list=camera_keywords, sort_order=is_reverse_sort)
-    print('Tapes from g-rack: {tapes}'.format(tapes=tapes_from_g_rack_by_camera))
+                                                      camera_list=camera_keywords, sort_order=args.reverse)
+    print('Tapes from G-Rack: {tapes}'.format(tapes=tapes_from_g_rack_by_camera))
     write_diff_table(local_tapes=tapes_from_g_rack_by_camera, inventory_tapes=tapes_from_inventory_by_camera)
     subprocess.check_call(['open', output_path])
 
