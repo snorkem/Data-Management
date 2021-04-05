@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# By Alex Fichera
+# Only tested on MacOS. Does not work with Python 2.7.
 import difflib
 import csv
 from pathlib import Path
@@ -165,7 +167,10 @@ def main():
     print('Tapes from G-Rack: {tapes}'.format(tapes=tapes_from_g_rack_by_camera))
     write_diff_table(local_tapes=tapes_from_g_rack_by_camera, inventory_tapes=tapes_from_inventory_by_camera)
     subprocess.check_call(['open', output_path])
-
+    subprocess.check_call(['osascript', '-e', 'display notification "A comparison report between the G-Rack and Delta'
+                                              ' Spire has been generated at: {0}/" with title '
+                                              '"Report Generated!" subtitle "Thanks for '
+                                              'checking your work!"'.format(working_dir)])
 
 if __name__ == '__main__':
     main()
