@@ -44,7 +44,12 @@
 					<key>multipleSelection</key>
 					<dict/>
 					<key>promptMessage</key>
-					<dict/>
+					<dict>
+						<key>tokenizedValue</key>
+						<array>
+							<string>Choose a CSV file from Delta Spire</string>
+						</array>
+					</dict>
 				</dict>
 				<key>AMProvides</key>
 				<dict>
@@ -68,7 +73,7 @@
 					<key>multipleSelection</key>
 					<false/>
 					<key>promptMessage</key>
-					<string>Choose a Finder Item:</string>
+					<string>Choose a CSV file from Delta Spire</string>
 				</dict>
 				<key>BundleIdentifier</key>
 				<string>com.apple.Automator.AskForFinderItems</string>
@@ -159,8 +164,6 @@
 						<string>3</string>
 					</dict>
 				</dict>
-				<key>conversionLabel</key>
-				<integer>0</integer>
 				<key>isViewVisible</key>
 				<true/>
 				<key>location</key>
@@ -335,7 +338,7 @@
 				<key>isViewVisible</key>
 				<true/>
 				<key>location</key>
-				<string>258.000000:459.000000</string>
+				<string>258.000000:407.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>
@@ -345,7 +348,7 @@
 	</array>
 	<key>connectors</key>
 	<dict>
-		<key>46A584FE-E971-430F-9127-79E5FCEB6725</key>
+		<key>30FAF3BE-5319-4C00-87CF-3C24E8E26EB0</key>
 		<dict>
 			<key>from</key>
 			<string>2EC1485E-02A6-4F77-A751-C491AD8542F5 - 2EC1485E-02A6-4F77-A751-C491AD8542F5</string>

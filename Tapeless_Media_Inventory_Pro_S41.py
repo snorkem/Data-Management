@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # By Alex Fichera
-# Only tested on MacOS. Does not work with Python 2.7.
+# Based on bash workflow by Asher Pink, without whom this project would not exist.
+# Only tested on MacOS. Does not work with Python 2.7 for syntax reasons.
 import difflib
 import csv
 from pathlib import Path
