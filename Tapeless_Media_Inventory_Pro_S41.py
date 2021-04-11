@@ -11,7 +11,7 @@ import os
 import shutil
 from datetime import datetime
 ######### Global Variables #########
-camera_keywords = ['FX3', 'RED', 'BLK', 'DRN', 'AMI', 'ADC', 'CC', 'OSM', 'SA7', 'SD', 'WAV', 'WA', 'TTL', 'A7S',
+camera_keywords = ['FX3', 'RED', 'BLK', 'DRN', 'AMI', 'ADC', 'CC', 'OSM', 'SA7', 'SD', 'WAV', 'W', 'TTL', 'A7S',
                    'GPR']
 working_dir = Path('~/tapelist').expanduser()
 reports_dir = Path(working_dir) / 'zOld_Reports'
@@ -86,11 +86,6 @@ def get_tapes_by_camera(tape_list: list, camera_list: list, sort_order: bool):
                     tape_list.remove(tape)
         elif len(camera) == 2:
             # Controlling for the tape names with only 2 letters. Parsing those in separate elif conditions.
-            if camera == 'WA':
-                for tape in tape_list:
-                    if camera == tape[-2:]:  # Sometimes the WA is at the end (idk why) and we need to check for that.
-                        tapes.append(tape)
-                        tape_list.remove(tape)
             elif camera == 'CC':
                 for tape in tape_list:
                     if camera == tape[:2]:
@@ -101,6 +96,13 @@ def get_tapes_by_camera(tape_list: list, camera_list: list, sort_order: bool):
                     if camera == tape[:2]:
                         tapes.append(tape)
                         tape_list.remove(tape)
+            elif len(camera) == 1:
+                if camera == 'W':
+                    for tape in tape_list:
+                        if camera == tape[-2:]:  # W is cineflex camera -- not used in S1
+                            tapes.append(tape)
+                            tape_list.remove(tape)
+
     # add any leftover items to the list
     tapes.extend(tape_list)
     # sort
