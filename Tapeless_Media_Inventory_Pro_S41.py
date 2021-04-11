@@ -86,7 +86,7 @@ def get_tapes_by_camera(tape_list: list, camera_list: list, sort_order: bool):
                     tape_list.remove(tape)
         elif len(camera) == 2:
             # Controlling for the tape names with only 2 letters. Parsing those in separate elif conditions.
-            elif camera == 'CC':
+            if camera == 'CC':
                 for tape in tape_list:
                     if camera == tape[:2]:
                         tapes.append(tape)
