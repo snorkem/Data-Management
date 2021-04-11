@@ -11,7 +11,7 @@ import os
 import shutil
 from datetime import datetime
 ######### Global Variables #########
-camera_keywords = ['RED', 'BLK', 'DRN', 'AMI', 'ADC', 'CC', 'OSM', 'SA7', 'SD', 'WAV', 'WA', 'TTL', 'A7S',
+camera_keywords = ['FX3', 'RED', 'BLK', 'DRN', 'AMI', 'ADC', 'CC', 'OSM', 'SA7', 'SD', 'WAV', 'WA', 'TTL', 'A7S',
                    'GPR']
 working_dir = Path('~/tapelist').expanduser()
 reports_dir = Path(working_dir) / 'zOld_Reports'
@@ -79,27 +79,28 @@ def get_tapes_by_camera(tape_list: list, camera_list: list, sort_order: bool):
     final_tape_list = []
     # In this loop we compare camera list
     for camera in camera_list:
-        if len(camera) != 3:
-            # Controlling for the tape names with only 2 letters. Parsing those in separate elif conditions.
+        if len(camera) == 3:
             for tape in tape_list:
                 if camera in tape[:3]:
                     tapes.append(tape)
                     tape_list.remove(tape)
-        elif camera == 'WA':
-            for tape in tape_list:
-                if camera == tape[-2:]:  # Sometimes the WA is at the end (idk why) and we need to check for that.
-                    tapes.append(tape)
-                    tape_list.remove(tape)
-        elif camera == 'CC':
-            for tape in tape_list:
-                if camera == tape[:2]:
-                    tapes.append(tape)
-                    tape_list.remove(tape)
-        elif camera == 'SD':
-            for tape in tape_list:
-                if camera == tape[:2]:
-                    tapes.append(tape)
-                    tape_list.remove(tape)
+        elif len(camera) == 2:
+            # Controlling for the tape names with only 2 letters. Parsing those in separate elif conditions.
+            if camera == 'WA':
+                for tape in tape_list:
+                    if camera == tape[-2:]:  # Sometimes the WA is at the end (idk why) and we need to check for that.
+                        tapes.append(tape)
+                        tape_list.remove(tape)
+            elif camera == 'CC':
+                for tape in tape_list:
+                    if camera == tape[:2]:
+                        tapes.append(tape)
+                        tape_list.remove(tape)
+            elif camera == 'SD':
+                for tape in tape_list:
+                    if camera == tape[:2]:
+                        tapes.append(tape)
+                        tape_list.remove(tape)
     # add any leftover items to the list
     tapes.extend(tape_list)
     # sort
@@ -156,7 +157,7 @@ def main():
     if reports_dir.exists() is False:
         reports_dir.mkdir(parents=True)
     # Check is csv file is valid and return path
-    while is_csv_valid(csv_file) is False: 
+    while is_csv_valid(csv_file) is False:
         print('Invalid path or file. Try again.')
         csv_file = get_file_path()
     print("CSV file located at: {0}".format(csv_file))
