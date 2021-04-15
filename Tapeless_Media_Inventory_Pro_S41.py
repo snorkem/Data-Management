@@ -11,7 +11,7 @@ import os
 import shutil
 from datetime import datetime
 ######### Global Variables #########
-camera_keywords = ['FX3', 'RED', 'BLK', 'DRN', 'AMI', 'ADC', 'CC', 'OSM', 'SA7', 'SD', 'WAV', 'W', 'TTL', 'A7S',
+camera_keywords = ['FX3', 'RED', 'BLK', 'DRN', 'AMI', 'ADC', 'CC', 'OSM', 'SA7', 'SD', 'W', 'TTL', 'A7S',
                    'GPR']
 working_dir = Path('~/tapelist').expanduser()
 reports_dir = Path(working_dir) / 'zOld_Reports'
