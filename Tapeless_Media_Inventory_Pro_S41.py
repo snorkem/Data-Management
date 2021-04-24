@@ -10,6 +10,8 @@ import subprocess
 import os
 import shutil
 from datetime import datetime
+import pandas as pd
+import collections
 ######### Global Variables #########
 camera_keywords = ['FX3', 'RED', 'BLK', 'DRN', 'AMI', 'ADC', 'CC', 'OSM', 'SA7', 'SD', 'W', 'TTL', 'A7S',
                    'GPR']
@@ -17,9 +19,11 @@ working_dir = Path('~/tapelist').expanduser()
 reports_dir = Path(working_dir) / 'zOld_Reports'
 PATH_TO_G_RACK = Path('/Users/Alex/Desktop/ODA/')
 output_html = 'Tapelist_Compare_by_Camera.html'
+output_dups = 'Duplicate_Report.html'
 column_id = 'ID'
 dt_string = datetime.now().strftime("%Y-%m-%d_%HH-%MM-%SS")
 output_path = str(working_dir / '{time}_{file_name}'.format(time=dt_string, file_name=output_html))
+dup_output_path = str(working_dir / '{time}_{file_name}'.format(time=dt_string, file_name=output_dups))
 ######### End Global Variables #########
 
 
@@ -72,6 +76,25 @@ def get_tapes_from_path(path):
     #for tape in tapenames:
     #    print('tape item is: ' + tape)
     return tape_names
+
+
+def get_dup_list(paths):
+    path_list = [item for item in paths.glob('*/**') if item.is_dir]
+    #names = [item.name for item in path_list]
+    for item in path_list:
+        if item.is_dir() is not True:
+            path_list.remove(item)
+    names = [item.name for item in path_list]
+    df = pd.DataFrame(list(zip(path_list, names)), columns=['Path', 'Tape Name'])
+    duplicate_rows_df = df[df.duplicated(['Tape Name'], keep=False)].reset_index(drop=True)
+    duplicate_rows_df.index = range(1,len(duplicate_rows_df)+1)
+    return duplicate_rows_df
+
+
+'''def check_for_dups(tape_list):
+    df = pd.DataFrame(tape_list, columns=['Duplicates'])
+    duplicate_rows_df = df[df.duplicated(['Duplicates'])].reset_index()
+    return duplicate_rows_df'''
 
 
 def get_tapes_by_camera(tape_list: list, camera_list: list, sort_order: bool):
@@ -133,6 +156,12 @@ def write_diff_table(local_tapes, inventory_tapes):
                                             todesc='DELTA Spire Tapeless Inventory')
     with open(output_path, mode='w') as out:
         out.writelines(out_file)
+    dups = get_dup_list(PATH_TO_G_RACK)
+    if len(dups) > 0:
+        html = dups.to_html()
+        print('writing')
+        with open(dup_output_path, mode='w') as f:
+            f.write(html)
 
 
 def get_args():
@@ -171,6 +200,8 @@ def main():
     print('Tapes from G-Rack: {tapes}'.format(tapes=tapes_from_g_rack_by_camera))
     write_diff_table(local_tapes=tapes_from_g_rack_by_camera, inventory_tapes=tapes_from_inventory_by_camera)
     subprocess.check_call(['open', output_path])
+    if Path(dup_output_path).exists():
+        subprocess.check_call(['open', dup_output_path])
     subprocess.check_call(['osascript', '-e', 'display notification "A comparison report between the G-Rack and Delta'
                                               ' Spire has been generated at: {0}/" with title '
                                               '"Report Generated!" subtitle "Thanks for '
