@@ -12,6 +12,8 @@ import shutil
 import pandas as pd
 import collections
 import datetime
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
 ######### Global Variables #########
 camera_keywords = ['FX3', 'RED', 'BLK', 'DRN', 'AMI', 'ADC', 'CC', 'OSM', 'SA7', 'SD', 'W', 'TTL', 'A7S',
                    'GPR']
@@ -25,6 +27,12 @@ dt_string = datetime.datetime.now().strftime("%Y-%m-%d_%HH-%MM-%SS")
 output_path = str(working_dir / '{time}_{file_name}'.format(time=dt_string, file_name=output_html))
 dup_output_path = str(working_dir / '{time}_{file_name}'.format(time=dt_string, file_name=output_dups))
 ######### End Global Variables #########
+
+
+def gui_get_csv():
+    Tk().withdraw()
+    filename = askopenfilename()
+    return Path(filename)
 
 
 def is_g_rack_connected(path: Path):
@@ -105,7 +113,7 @@ def get_dup_list(path):
     df = pd.DataFrame(list(zip(path_list, names, sizes_GiB, sizes_GB, mod_times)), columns=['Path', 'Tape Name', 'Size (GiB)', 'Size (GB)',
                                                                                  'Last Modified'])
     duplicate_rows_df = df[df.duplicated(['Tape Name'], keep=False)].reset_index(drop=True)
-    duplicate_rows_df.index = range(1,len(duplicate_rows_df)+1)
+    duplicate_rows_df.index = range(1, len(duplicate_rows_df)+1)
     return duplicate_rows_df
 
 
@@ -195,7 +203,8 @@ def get_args():
 def main():
     args = get_args()
     is_g_rack_connected(PATH_TO_G_RACK)
-    csv_file = Path(args.csv)  # Get CSV file from user argument
+    #csv_file = Path(args.csv)  # Get CSV file from user argument
+    csv_file = gui_get_csv()
     if reports_dir.exists() is False:
         reports_dir.mkdir(parents=True)
     # Check is csv file is valid and return path
