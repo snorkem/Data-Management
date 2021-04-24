@@ -78,8 +78,8 @@ def get_tapes_from_path(path):
     return tape_names
 
 
-def get_dup_list(paths):
-    path_list = [item for item in paths.glob('*/**') if item.is_dir]
+def get_dup_list(path):
+    path_list = [item for item in path.glob('*/**') if item.is_dir]
     #names = [item.name for item in path_list]
     for item in path_list:
         if item.is_dir() is not True:
