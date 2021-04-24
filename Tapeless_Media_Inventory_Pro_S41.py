@@ -162,8 +162,7 @@ def write_diff_table(local_tapes, inventory_tapes):
     # Directory checking and cleanup.
     if Path(reports_dir).exists() is False:
         reports_dir.mkdir()
-    files = [item for item in working_dir.glob('*/') if item.is_file() and item.suffix == '.html'
-             or item.suffix == '.HTML']
+    files = [item for item in working_dir.glob('*/') if item.is_file() and item.suffix.lower() == '.html']
     for file in files:
         try:
             shutil.copy2(str(file), str(working_dir) + '/zOld_Reports')
