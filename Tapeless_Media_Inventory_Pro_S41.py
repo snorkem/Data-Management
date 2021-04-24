@@ -209,7 +209,7 @@ def main():
     # Check is csv file is valid and return path
     while is_csv_valid(csv_file) is False:
         print('Invalid path or file. Try again.')
-        csv_file = get_file_path()
+        csv_file = gui_get_csv()
     print("CSV file located at: {0}".format(csv_file))
     tapes_from_inventory_by_camera = get_tapes_by_camera(tape_list=get_tapes_from_csv(csv_file, args.reverse),
                                                          camera_list=camera_keywords, sort_order=args.reverse)
