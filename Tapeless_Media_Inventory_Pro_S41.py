@@ -107,7 +107,8 @@ def get_size_GB(start_path):
 
 
 def get_dup_list(path):
-    path_list = [item for item in path.glob('*/**') if item.is_dir]
+    path_list = [item for item in path.glob('*/*') if item.is_dir]
+    #deep_path_list = [item for item in path.glob('*/**') if item.is_dir]
     names = [item.name for item in path_list]
     sizes_GiB = [get_size_GiB(item) for item in path_list]
     sizes_GB = [get_size_GB(item) for item in path_list]
