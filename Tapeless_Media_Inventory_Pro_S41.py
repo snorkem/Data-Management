@@ -12,6 +12,7 @@ import shutil
 import pandas as pd
 import collections
 import datetime
+import tkinter.messagebox as messagebox
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 ######### Global Variables #########
@@ -209,6 +210,8 @@ def main():
     # Check is csv file is valid and return path
     while is_csv_valid(csv_file) is False:
         print('Invalid path or file. Try again.')
+        if messagebox.askokcancel('Quit', 'Invalid CSV file. Quit now?'):
+            quit(1)
         csv_file = gui_get_csv()
     print("CSV file located at: {0}".format(csv_file))
     tapes_from_inventory_by_camera = get_tapes_by_camera(tape_list=get_tapes_from_csv(csv_file, args.reverse),
