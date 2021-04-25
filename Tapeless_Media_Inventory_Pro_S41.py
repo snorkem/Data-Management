@@ -52,12 +52,13 @@ def get_file_path():
 
 
 def is_csv_valid(user_input):
+    print(user_input)
     if user_input is None:
         return False
     elif user_input.is_file() is False:
         return False
     elif user_input.is_file():
-        if user_input.suffix == '.csv' or user_input.suffix == '.CSV':
+        if user_input.suffix.lower() == '.csv':
             return True
         else:
             return False
@@ -187,7 +188,7 @@ def get_args():
     # Create the parser
     my_parser = argparse.ArgumentParser(description='Check tapeless media against inventory.')
     # Add the arguments
-    my_parser.add_argument('csv',
+    my_parser.add_argument('--csv',
                            metavar='csv',
                            type=str,
                            help='The path to csv list from Delta Spire',
