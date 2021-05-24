@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # By Alex Fichera
-# Based on bash workflow by Asher Pink, without whom this project would not exist.
+# Based on bash workflow by Asher Pink,a without whom this project would not exist.
 # Only tested on MacOS. Does not work with Python 2.7 for syntax reasons.
 import difflib
 import csv
