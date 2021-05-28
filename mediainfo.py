@@ -1,3 +1,4 @@
+#!/usr/env python3.9
 import os
 from pathlib import Path
 from glob import glob
@@ -8,19 +9,34 @@ import xmltodict
 from IPython.display import display, HTML
 import re
 
-
+##### Begin User Variables #####
 G_RACK_PATH = '/Volumes/S42 G-SPEED Shuttle XL/S42 TAPELESS MEDIA/ODA'
 REPORT_NAME = 'Media_Stats.html'
 SEASON_LTRS = 'UU'
+SEARCH_PATTERN = 'SD'
+##### End User Variables #####
+
 dt_string = datetime.now().strftime("%Y-%m-%d_%HH-%MM-%SS")
 working_dir = Path('~/').expanduser().resolve() / Path('SEGMediaInfo Reports')
 report_path = Path(str(working_dir) + '/' + '{time}_{file_name}'.format(time=dt_string, file_name=REPORT_NAME))
-formats = ('.mov', '.mp4', '.mxf')
-camera_dict = {
-    'A7s': 'value'
+formats = ('.mov', '.mp4', '.mxf')  # Accepted file formats.
+camera_dict = {  # These letters indicate camera used and the folder structure to navigate in order to find footage.
+    'A7s': ('D', 'E', 'F', 'G', 'L'),
+    'FX3': ('N', 'K'),
+    'Alexa': ('A', 'B'),
 }
-BIG_LIST = []
-cur_row = []
+cur_row = []  # current working row as we build the dataframe
+BIG_LIST = []  # master list of lists from which we will construct the final dataframe
+
+
+def are_drives_connected(g_rack_path: Path):
+    if g_rack_path.exists() and g_rack_path.is_dir():
+        print('Checking G-Rack path...\n'
+              'G-Rack path valid...')
+        return True
+    else:
+        print('G-Rack path not valid. Check the G-Rack is mounted, or check the path variable in the program. Quiting.')
+        exit(1)
 
 
 def get_files(path_to_search):
@@ -58,10 +74,12 @@ def write_report(path: Path, df: pd.DataFrame):
 def get_media_info(tapename: Path):
     camera_letter = re.search(rf'({SEASON_LTRS})([-\d]{{1,2}})([A-Z])([A-Z])', tapename.name).group(3)
     media_stats = {
-        'Name': 'Unknown', 'First File Name': 'Unknown', 'Size (GiB)': 'Unknown', 'Format': 'Unknown', 'Bitrate': 'Unknown', 'Frame Rate': 'Unknown', 'Width': 'Unknown', 'Height': 'Unknown',
-        'Color Primaries': 'Unknown', 'White Balance': 'Unknown',  'Gamma': 'Unknown', 'Bit Depth': 'Unknown', 'ISO/ASA': 'Unknown'
+        'Name': 'Unknown', 'First File Name': 'Unknown', 'Size (GiB)': 'Unknown', 'Format': 'Unknown',
+        'Bitrate': 'Unknown', 'Frame Rate': 'Unknown', 'Width': 'Unknown', 'Height': 'Unknown',
+        'Color Primaries': 'Unknown', 'White Balance': 'Unknown',  'Gamma': 'Unknown', 'Bit Depth': 'Unknown',
+        'ISO/ASA': 'Unknown'
         }
-    if camera_letter in ('D', 'E', 'F', 'G', 'L'):  # A7siii footage or similar
+    if camera_letter in camera_dict['A7s']:  # A7siii footage or similar
         media_stats.update({
             'Name': tapename.name
         })
@@ -76,7 +94,7 @@ def get_media_info(tapename: Path):
                     capture_gamma_equation = xml['NonRealTimeMeta']['AcquisitionRecord']['Group']['Item'][0]['@value']
                     capture_color_primaries = xml['NonRealTimeMeta']['AcquisitionRecord']['Group']['Item'][1]['@value']
             except Exception as e:
-                print('Error accessing Sony XML file.')
+                print('Error accessing Sony XML file for folder: {f}'.format(f=tapename))
                 print(e)
             for track in media_info.video_tracks:
                 media_stats.update({
@@ -96,12 +114,12 @@ def get_media_info(tapename: Path):
                 media_stats.update({
                     key: 'Empty Folder'
                 })
-    elif camera_letter in ('N', 'K'):  # FX3 Footage or similar
+    elif camera_letter in camera_dict['FX3']:  # FX3 Footage or similar
         media_stats.update({
             'Name': tapename.name
         })
         subdir = tapename.joinpath('XDROOT', 'Clip')
-        if len(list(subdir.iterdir())) >= 0:
+        if len(list(subdir.iterdir())) > 0:
             file = get_files(subdir)
             media_info = MediaInfo.parse(file)
             try:
@@ -111,7 +129,7 @@ def get_media_info(tapename: Path):
                     capture_gamma_equation = xml['NonRealTimeMeta']['AcquisitionRecord']['Group']['Item'][0]['@value']
                     capture_color_primaries = xml['NonRealTimeMeta']['AcquisitionRecord']['Group']['Item'][1]['@value']
             except Exception as e:
-                print('Error accessing Sony XML file.')
+                print('Error accessing Sony XML file for folder: {f}'.format(f=tapename))
                 print(e)
             for track in media_info.video_tracks:
                 media_stats.update({
@@ -132,7 +150,7 @@ def get_media_info(tapename: Path):
                     key: 'Empty Folder'
                 })
 
-    elif camera_letter in ('A', 'B'):  # Alexa footage
+    elif camera_letter in camera_dict['Alexa']:  # Alexa footage
         media_stats.update({
             'Name': tapename.name
         })
@@ -141,7 +159,7 @@ def get_media_info(tapename: Path):
             first_file = file[0]
             media_info = MediaInfo.parse(first_file)
             for track in media_info.general_tracks:
-               # print(track.to_data())
+                # print(track.to_data())
                 media_stats.update({
                                     'Size (GiB)': str(get_size(tapename)),
                                     'Name': tapename.name,
@@ -174,20 +192,21 @@ def get_size(start_path='.'):
 
 
 def main():
-    tape_list = [f for f in Path(G_RACK_PATH).glob('*/SD*') if f.is_dir()]  # Find a regex to do this...
-    tape_list.sort()
-    for tape in tape_list:
-        #cur_row.append(tape.name)
-        stats = get_media_info(tape)
-        cur_row.extend([value for key, value in stats.items()])
-        BIG_LIST.append(cur_row.copy())
-        cur_row.clear()
-    BIG_LIST.sort()
-    print(BIG_LIST)
-    df = pd.DataFrame(BIG_LIST, columns=['Name', 'First File Name', 'Size (GiB)', 'Format', 'Bitrate',
-                                         'Frame Rate', 'Width', 'Height', 'Color Primaries', 'White Balance', 'Gamma',
-                                         'Bit Depth', 'ISO/ASA'])
-    write_report(working_dir, df)
+    if are_drives_connected(Path(G_RACK_PATH)) is True:
+        tape_list = [f for f in Path(G_RACK_PATH).glob(rf'*/{SEARCH_PATTERN}*') if f.is_dir()]  # Find a regex to do this...
+        tape_list.sort()
+        for tape in tape_list:
+            stats = get_media_info(tape)
+            cur_row.extend([value for key, value in stats.items()])
+            BIG_LIST.append(cur_row.copy())
+            cur_row.clear()
+        BIG_LIST.sort()
+        df = pd.DataFrame(BIG_LIST, columns=['Name', 'First File Name', 'Size (GiB)', 'Format', 'Bitrate',
+                                             'Frame Rate', 'Width', 'Height', 'Color Primaries', 'White Balance',
+                                             'Gamma', 'Bit Depth', 'ISO/ASA'])
+        write_report(working_dir, df)
 
 
-main()
+if __name__ == '__main__':
+    main()
+
