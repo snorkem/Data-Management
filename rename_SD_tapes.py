@@ -112,19 +112,20 @@ def rename_gopro(tape_list):
                         new_file_name = i.parent.joinpath(dir.name) / + '_' + str(file.name)'''
 
 
-
-
 def rename_drone(tape_list):
     for i in tape_list:
-        clip_folders = [item for item in i.iterdir() if item.is_dir() and '{key}{ltrs}'.format(key=tape_keys['Drone'], ltrs=season_letters)
+        clip_folders = [item for item in i.iterdir() if item.is_dir()
+                        and '{key}{ltrs}'.format(key=tape_keys['Drone'], ltrs=season_letters)
                         not in str(item.name)]
         #print(clip_folders)
         for folder in clip_folders:
             new_folder_name = folder.rename(str(folder.parent) + '/' + i.name + '_' + str(folder.name))
             clip_files = [file for file in new_folder_name.glob('**/*') if file.is_file() and
                           file.suffix.lower() == '.mp4'
-                          or  file.suffix.lower() == '.mov' or  file.suffix.lower() == '.mov']
-            valid_clip_files = [file for file in clip_files if not '{key}{ltrs}'.format(key=tape_keys['Blackmagic'], ltrs=season_letters) in str(file.name)]
+                          or file.suffix.lower() == '.mov' or  file.suffix.lower() == '.mov']
+            valid_clip_files = [file for file in clip_files if
+                                not '{key}{ltrs}'.format(key=tape_keys['Blackmagic'], ltrs=season_letters)
+                                    in str(file.name)]
             for file in valid_clip_files:
                 #print(str(file))
                 new_file_name = file.rename(str(file.parent) + '/' + i.name + '_' + str(file.name))
@@ -168,10 +169,9 @@ def main():
     root.withdraw()
 
     # Message Box
-    messagebox.showinfo("Magic Renamer!", "Batch rename complete! Check your Shotput Transfer on G-Speed and G-Rack to verify.")
+    messagebox.showinfo("Magic Renamer!", "Batch rename complete! Check your Shotput Transfer "
+                                          "on G-Speed and G-Rack to verify.")
 
-
-main()
 
 if __name__ == "__main__":
     main()
