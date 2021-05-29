@@ -32,7 +32,7 @@ cur_row = []  # current working row as we build the dataframe
 BIG_LIST = []  # master list of lists from which we will construct the final dataframe
 
 
-def are_drives_connected(path: Path):
+def path_exists(path: Path):
     if path.exists() and path.is_dir():
         print('Checking G-Rack path...\n'
               'G-Rack path valid...')
@@ -206,7 +206,7 @@ def get_media_info(tapename: Path):
 
 
 def main():
-    if are_drives_connected(Path(G_RACK_PATH)) is True:
+    if path_exists(Path(G_RACK_PATH)) is True:
         tape_list = [f for f in Path(G_RACK_PATH).glob(rf'*/{SEARCH_PATTERN}*') if f.is_dir()]  # Find a regex to do this...
         tape_list.sort()
         for tape in tape_list:
