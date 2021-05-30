@@ -3,35 +3,37 @@ import ffmpeg
 from ffprobe3 import ffprobe
 import shutil
 
-# Working test code!
-'''(
-    ffmpeg
-    .input('/Users/admin/Desktop/Scott_Good_Timelapse_v4_ProRes422HQ_1080p.mov', ss='00:01')
-    .filter('scale', '1920', -1)
-    .output('/Users/admin/Desktop/test2.jpg', vframes=1)
-    .run()
-)'''
+luts = {
+    'Arri': '/Users/admin/PycharmProjects/Data_Management/mediainfo/utils/ARRI_LogC2Video_709_davinci3d_33.cube',
+    'Sony': '/Users/admin/PycharmProjects/Data_Management/mediainfo/utils/ARRI_LogC2Video_709_davinci3d_33.cube'
+}
 
 
-def thumb_to_df(file: Path, output_dir: Path, seek_time: str, width='60'):
+def get_lut(camera):
+    if camera == 'Sony':
+        return luts['Sony']
+    elif camera == 'Arri':
+        return luts['Arri']
+
+
+def thumb_to_df(file: Path, output_dir: Path, seek_time: str, media_stats: dict, width='150'):
     # seek_time should be formated "00:01" or similar
-    print('output dir ' + str(output_dir))
     if are_drives_connected(output_dir) is False:
         print('Making thumb dir:' + str(output_dir))
         Path.mkdir(output_dir)
     print('input file: ' + str(file))
     try:
         output_file = output_dir.joinpath(file.stem + '.jpg')
-        print(output_file)
         (
             ffmpeg
                 .input(str(file), t=seek_time)
                 .filter('scale', '1920', -1)
+                .filter('lut3d', get_lut(media_stats['Manufacturer']))
                 .output(str(output_file), vframes=1)
                 .overwrite_output()
                 .run()
         )
-        html = '<img src="' + str(output_file) + '" width="150" >'
+        html = '<img src="' + str(output_file) + '" width="{width}" >'.format(width=width)
         return html
     except Exception as e:
         print('Could not get thumbnail!')

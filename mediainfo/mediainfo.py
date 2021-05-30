@@ -87,7 +87,7 @@ def write_report(path: Path, df: pd.DataFrame):
 def get_media_info(tapename: Path):
     camera_letter = re.search(rf'({SEASON_LTRS})([-\d]{{1,2}})([A-Z])([A-Z])', tapename.name).group(3)
     media_stats = {
-        'Thumbnail': 'Unknown', 'Name': 'Unknown', 'First File Name': 'Unknown', 'Size (GiB)': 'Unknown', 'Format': 'Unknown',
+        'Thumbnail': 'Unknown', 'Name': 'Unknown', 'First File Name': 'Unknown', 'Manufacturer': 'Unknown', 'Size (GiB)': 'Unknown', 'Format': 'Unknown',
         'Bitrate': 'Unknown', 'Frame Rate': 'Unknown', 'Width': 'Unknown', 'Height': 'Unknown',
         'Color Primaries': 'Unknown', 'White Balance': 'Unknown',  'Gamma': 'Unknown', 'Bit Depth': 'Unknown',
         'ISO/ASA': 'Unknown'
@@ -100,9 +100,7 @@ def get_media_info(tapename: Path):
         if len(list(subdir.iterdir())) > 0:
             file = get_files(subdir)
             print('looking for thumb of ' + str(file))
-            media_stats.update({
-                'Thumbnail': thumb_to_df(file, thumbs_path, THUMB_SEEK)
-            })
+
             media_info = MediaInfo.parse(file)
             try:
                 xmlfile = file.with_name(file.stem + 'M01.xml')
@@ -114,8 +112,11 @@ def get_media_info(tapename: Path):
                 print('Error accessing Sony XML file for folder: {f}'.format(f=tapename))
                 print(e)
             for track in media_info.video_tracks:
+                print(track.to_data())
+
                 media_stats.update({
                                     'Size (GiB)': str(get_size(tapename)),
+                                    'Manufacturer': 'Sony',
                                     'First File Name': file.name,
                                     'Format': str(track.to_data()['format']),
                                     'Bitrate': str(round(track.bit_rate / 1000000)) + ' Mb/s',  # Convert to Mb/s
@@ -126,6 +127,9 @@ def get_media_info(tapename: Path):
                                     + str(track.to_data()['chroma_subsampling']),
                                     'Gamma': capture_gamma_equation,
                                     'Color Primaries': capture_color_primaries})
+                media_stats.update({
+                    'Thumbnail': thumb_to_df(file, thumbs_path, THUMB_SEEK, media_stats)
+                })
         else:
             for key, value in media_stats.items():
                 media_stats.update({
@@ -140,7 +144,7 @@ def get_media_info(tapename: Path):
             file = get_files(subdir)
             media_info = MediaInfo.parse(file)
             media_stats.update({
-                'Thumbnail': thumb_to_df(file, thumbs_path, THUMB_SEEK)
+
             })
             try:
                 xmlfile = file.with_name(file.stem + 'M01.xml')
@@ -155,6 +159,7 @@ def get_media_info(tapename: Path):
                 media_stats.update({
                                     'Size (GiB)': str(get_size(tapename)),
                                     'First File Name': file.name,
+                                    'Manufacturer': 'Sony',
                                     'Format': str(track.to_data()['format']),
                                     'Color Primaries': capture_color_primaries,
                                     'Gamma': capture_gamma_equation,
@@ -164,6 +169,7 @@ def get_media_info(tapename: Path):
                                     'Height': str(track.to_data()['other_height'][0]),
                                     'Bit Depth': str(track.to_data()['bit_depth']) + 'bits, '
                                     + str(track.to_data()['chroma_subsampling'])})
+                media_stats.update({'Thumbnail': thumb_to_df(file, thumbs_path, THUMB_SEEK, media_stats)})
         else:
             for key, value in media_stats.items():
                 media_stats.update({
@@ -178,15 +184,14 @@ def get_media_info(tapename: Path):
         if len(file) > 0:
             first_file = file[0]
             media_info = MediaInfo.parse(first_file)
-            media_stats.update({
-                'Thumbnail': thumb_to_df(first_file, thumbs_path, THUMB_SEEK)
-            })
             for track in media_info.general_tracks:
-                # print(track.to_data())
+                print(track.to_data())
                 media_stats.update({
+                                    'Thumbnail': thumb_to_df(first_file, thumbs_path, THUMB_SEEK, media_stats),
                                     'Size (GiB)': str(get_size(tapename)),
                                     'Name': tapename.name,
                                     'First File Name': first_file.name,
+                                    'Manufacturer': 'Arri',
                                     'Format': str(track.to_data()['video_format_list']),
                                     'Bitrate': str(track.to_data()['other_overall_bit_rate'][0]),
                                     'Frame Rate': str(int(track.to_data()['comarricamerasensorfps']) / 1000),
@@ -198,6 +203,9 @@ def get_media_info(tapename: Path):
             for track in media_info.video_tracks:
                 media_stats.update({'Color Primaries': str(track.to_data()['color_primaries']),
                                     'Bit Depth': track.to_data()['chroma_subsampling']})
+            media_stats.update({
+                'Thumbnail': thumb_to_df(first_file, thumbs_path, THUMB_SEEK, media_stats)
+            })
     else:
         media_stats.update({
             'Name': tapename.name
@@ -215,7 +223,7 @@ def main():
             cur_row.extend([value for key, value in stats.items()])
             BIG_LIST.append(cur_row.copy())
             cur_row.clear()
-        df = pd.DataFrame(BIG_LIST, columns=['Thumbnail', 'Name', 'First File Name', 'Size (GiB)', 'Format', 'Bitrate',
+        df = pd.DataFrame(BIG_LIST, columns=['Thumbnail', 'Name', 'First File Name', 'Manufacturer', 'Size (GiB)', 'Format', 'Bitrate',
                                              'Frame Rate', 'Width', 'Height', 'Color Primaries', 'White Balance',
                                              'Gamma', 'Bit Depth', 'ISO/ASA'])
         write_report(working_dir, df)
