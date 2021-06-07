@@ -25,7 +25,7 @@ def get_lut(media_stats):
 
 
 def thumb_to_df(file: Path, output_dir: Path, seek_time: str, media_stats: dict, width='150'):
-    # seek_time should be formated "00:01" or similar
+    # seek_time should be formatted "00:01" or similar
     if are_drives_connected(output_dir) is False:
         print('Making thumb dir:' + str(output_dir))
         Path.mkdir(output_dir)
@@ -34,7 +34,7 @@ def thumb_to_df(file: Path, output_dir: Path, seek_time: str, media_stats: dict,
         output_file = output_dir.joinpath(file.stem + '.jpg')
         (
             ffmpeg
-                .input(str(file), t=seek_time)
+                .input(str(file), ss=seek_time)
                 .filter('scale', '1920', -1)
                 .filter('lut3d', get_lut(media_stats))
                 .output(str(output_file), vframes=1)

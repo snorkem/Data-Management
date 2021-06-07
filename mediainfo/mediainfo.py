@@ -100,7 +100,6 @@ def get_media_info(tapename: Path):
         if len(list(subdir.iterdir())) > 0:
             file = get_files(subdir)
             print('looking for thumb of ' + str(file))
-
             media_info = MediaInfo.parse(file)
             try:
                 xmlfile = file.with_name(file.stem + 'M01.xml')
@@ -112,8 +111,7 @@ def get_media_info(tapename: Path):
                 print('Error accessing Sony XML file for folder: {f}'.format(f=tapename))
                 print(e)
             for track in media_info.video_tracks:
-                print(track.to_data())
-
+                #print(track.to_data())
                 media_stats.update({
                                     'Size (GiB)': str(get_size(tapename)),
                                     'Manufacturer': 'Sony',
@@ -143,9 +141,6 @@ def get_media_info(tapename: Path):
         if len(list(subdir.iterdir())) > 0:
             file = get_files(subdir)
             media_info = MediaInfo.parse(file)
-            media_stats.update({
-
-            })
             try:
                 xmlfile = file.with_name(file.stem + 'M01.xml')
                 with open(xmlfile) as f:
@@ -185,7 +180,7 @@ def get_media_info(tapename: Path):
             first_file = file[0]
             media_info = MediaInfo.parse(first_file)
             for track in media_info.general_tracks:
-                print(track.to_data())
+                #print(track.to_data())
                 media_stats.update({
                                     'Thumbnail': thumb_to_df(first_file, thumbs_path, THUMB_SEEK, media_stats),
                                     'Size (GiB)': str(get_size(tapename)),
@@ -203,9 +198,7 @@ def get_media_info(tapename: Path):
             for track in media_info.video_tracks:
                 media_stats.update({'Color Primaries': str(track.to_data()['color_primaries']),
                                     'Bit Depth': track.to_data()['chroma_subsampling']})
-            media_stats.update({
-                'Thumbnail': thumb_to_df(first_file, thumbs_path, THUMB_SEEK, media_stats)
-            })
+            media_stats.update({'Thumbnail': thumb_to_df(first_file, thumbs_path, THUMB_SEEK, media_stats)})
     else:
         media_stats.update({
             'Name': tapename.name
