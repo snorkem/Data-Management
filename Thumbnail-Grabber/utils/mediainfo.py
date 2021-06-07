@@ -1,17 +1,17 @@
 #!/usr/env python3.9
+import json
 import os
-from pathlib import Path
-from glob import glob
-from pymediainfo import MediaInfo
-import pandas as pd
-from datetime import datetime
-import xmltodict
-from IPython.display import display, HTML
 import re
-from utils.thumbnails import thumb_to_df
 import shlex
 import subprocess
-import json
+from datetime import datetime
+from glob import glob
+from pathlib import Path
+import pandas as pd
+import xmltodict
+from IPython.display import display, HTML
+from pymediainfo import MediaInfo
+from utils.thumbnails import thumb_to_df
 
 camera_dict = {  # These letters indicate camera used and the folder structure to navigate in order to find footage.
     'A7s': ('D', 'E', 'F', 'G', 'L'),  # A7s or similar structure
@@ -57,7 +57,7 @@ def get_media_info(file: Path, camera_letter: str):
         'Color Primaries': 'Unknown', 'White Balance': 'Unknown',  'Gamma': 'Unknown', 'Bit Depth': 'Unknown',
         'ISO/ASA': 'Unknown'
         }
-    if camera_letter in camera_dict['A7s']:  # A7siii footage or similar
+    if camera_letter in camera_dict['A7s'] or camera_letter == 'A7s':  # A7siii footage or similar
         media_stats.update({'Name': dirname.name})
         media_info = MediaInfo.parse(file)
         try:
@@ -85,7 +85,7 @@ def get_media_info(file: Path, camera_letter: str):
                 'Gamma': capture_gamma_equation,
                 'Color Primaries': capture_color_primaries})
 
-    elif camera_letter in camera_dict['FX3']:  # FX3 Footage or similar
+    elif camera_letter in camera_dict['FX3'] or camera_letter == 'FX3':  # FX3 Footage or similar
         media_stats.update({'Name': dirname.name})
         media_info = MediaInfo.parse(file)
         try:
@@ -112,7 +112,7 @@ def get_media_info(file: Path, camera_letter: str):
                 'Bit Depth': str(track.to_data()['bit_depth']) + 'bits, '
                              + str(track.to_data()['chroma_subsampling'])})
 
-    elif camera_letter in camera_dict['Alexa']:  # Alexa footage
+    elif camera_letter in camera_dict['Alexa'] or camera_letter == 'Alexa':  # Alexa footage
         media_stats.update({
             'Name': file.parent.parent.name
         })

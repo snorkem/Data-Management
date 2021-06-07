@@ -1,13 +1,13 @@
 #!/usr/env python3.9
 import os
-from pathlib import Path
-from glob import glob
-from pymediainfo import MediaInfo
-import pandas as pd
+import re
 from datetime import datetime
+from glob import glob
+from pathlib import Path
+import pandas as pd
 import xmltodict
 from IPython.display import display, HTML
-import re
+from pymediainfo import MediaInfo
 from utils.thumbnails import thumb_to_df
 
 ##### Begin User Variables #####
