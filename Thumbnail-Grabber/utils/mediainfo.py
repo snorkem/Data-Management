@@ -13,11 +13,24 @@ from IPython.display import display, HTML
 from pymediainfo import MediaInfo
 from utils.thumbnails import thumb_to_df
 
+
 camera_dict = {  # These letters indicate camera used and the folder structure to navigate in order to find footage.
     'A7s': ('D', 'E', 'F', 'G', 'L'),  # A7s or similar structure
     'FX3': ('N', 'K'),
     'Alexa': ('A', 'B'),
 }
+
+
+def get_camera_type(file: Path):
+    if file.parent.parent.name == 'XDROOT':
+        return 'FX3'
+    elif file.suffix.lower() == '.mov':
+        return 'Alexa'
+    elif file.parent.parent.name == 'M4ROOT':
+        return 'A7s'
+    else:
+        return None
+
 
 def get_size(start_path='.'):
     total_size = 0
@@ -28,7 +41,7 @@ def get_size(start_path='.'):
     return round(total_size / 1024 ** 3, 2)
 
 
-def get_startTC(video_path: Path):
+def get_startTC(video_path: Path, camera_letter):
     # only works on alexa footage right now
     cmd = "ffprobe -v quiet -print_format json -show_streams"
     args = shlex.split(cmd)
@@ -36,27 +49,34 @@ def get_startTC(video_path: Path):
     # run the ffprobe process, decode stdout into utf-8 & convert to JSON
     ffprobeOutput = subprocess.check_output(args).decode('utf-8')
     ffprobeOutput = json.loads(ffprobeOutput)
-    output0 = ffprobeOutput['streams'][0]
-    output1 = ffprobeOutput['streams'][1]
-    for i in ffprobeOutput:
-        for x in ffprobeOutput[i]:
-            print(x)
-    timecode = output1['tags']['timecode']
-    duration_frames = output0['nb_frames']
-    timecode_info = {'Start TC': timecode,
-                     'Duration in Frames': str(duration_frames),
-                     }
-    print('duration is: ' + str(duration_frames))
-    return timecode_info
+
+    if camera_letter in camera_dict['Alexa'] or camera_letter == 'Alexa':
+        output0 = ffprobeOutput['streams'][0]
+        output1 = ffprobeOutput['streams'][1]
+        for i in ffprobeOutput:  # This is just to see what's happening in the console/terminal
+            for x in ffprobeOutput[i]:
+                print(x)
+        timecode = output1['tags']['timecode']
+        duration_frames = output0['nb_frames']
+        timecode_info = {'Start TC': timecode,
+                         'Duration in Frames': str(duration_frames),
+                         }
+        print('duration is: ' + str(duration_frames))
+        return timecode_info
+    else:
 
 
-def get_media_info(file: Path, camera_letter: str):
+def get_media_info(file: Path, camera_letter=None):
     media_stats = {
         'Thumbnail': 'Unknown', 'Name': 'Unknown', 'First File Name': 'Unknown', 'Manufacturer': 'Unknown', 'Size (GiB)': 'Unknown', 'Format': 'Unknown',
         'Bitrate': 'Unknown', 'Frame Rate': 'Unknown', 'Width': 'Unknown', 'Height': 'Unknown',
         'Color Primaries': 'Unknown', 'White Balance': 'Unknown',  'Gamma': 'Unknown', 'Bit Depth': 'Unknown',
         'ISO/ASA': 'Unknown'
         }
+
+    if camera_letter is None:
+        camera_letter = get_camera_type(file)
+
     if camera_letter in camera_dict['A7s'] or camera_letter == 'A7s':  # A7siii footage or similar
         media_stats.update({'Name': dirname.name})
         media_info = MediaInfo.parse(file)
@@ -116,7 +136,7 @@ def get_media_info(file: Path, camera_letter: str):
         media_stats.update({
             'Name': file.parent.parent.name
         })
-        timecode_info = get_startTC(file)
+        timecode_info = get_startTC(file, camera_letter)
         media_info = MediaInfo.parse(file)
         for track in media_info.general_tracks:
             # print(track.to_data())
@@ -137,6 +157,7 @@ def get_media_info(file: Path, camera_letter: str):
         for track in media_info.video_tracks:
             media_stats.update({'Color Primaries': str(track.to_data()['color_primaries']),
                                 'Bit Depth': track.to_data()['chroma_subsampling']})
+
     else:
         media_stats.update({
             'Name': file.parent.parent.name

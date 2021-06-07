@@ -15,17 +15,12 @@ from utils.thumbnails import thumb_to_df
 # Code is incomplete. Need to be able to parse mxf and mp4 files from sony cameras. Also clean
 # up all these garbage unused variables bellow.
 
+##### Begin User Variables #####
+FPS = '29.97'  # FPS of timecode -- not the camera FPS
+##### End User Variables #####
+
 TEST_PATH = Path('/Volumes/S42 G-SPEED Shuttle XL/S42 TAPELESS MEDIA/ODA/DAY 18 - [18 OF X]/SDUU18AA')
 TEST_OUTPUT = Path('/Users/admin/Desktop/test_stills')
-
-##### Begin User Variables #####
-TARGET = '/Volumes/S42 G-SPEED Shuttle XL/S42 TAPELESS MEDIA/ODA'
-REPORT_NAME = 'Media_Stats.html'
-SEASON_LTRS = 'UU'
-SEARCH_PATTERN = 'SD'
-THUMB_SEEK = '00:10:00'
-FPS = '29.97'
-##### End User Variables #####
 
 dt_string = datetime.now().strftime("%Y-%m-%d_%HH-%MM-%SS")
 working_dir = Path('~/').expanduser().resolve() / Path('SEGMediaInfo Reports')
@@ -34,16 +29,9 @@ report_path = Path(str(working_dir) + '/' + '{time}_{file_name}'.format(time=dt_
 formats = ('.mov', '.mp4', '.mxf')  # Accepted file formats.
 
 
-def get_camera_type(file: Path):
-    if file.parent.parent.name == 'XDROOT':
-        return 'FX3'
-    elif file.suffix.lower() == '.mov':
-        return 'Alexa'
-    else:
-        return None
-
 def get_clips_from_path(path: Path):
-    file_list = [f for f in path.glob(r'./**/*') if f.suffix.lower() in formats]
+    # Recursively get all valid files into a list, excluding subclips.
+    file_list = [f for f in path.glob(r'./**/*') if f.suffix.lower() in formats and f.parent.name != 'sub']
     if len(file_list) > 0:
         camera = get_camera_type(file_list[0])
         return file_list, camera
@@ -80,12 +68,11 @@ def grab(target: str, tc: str):
     :return: test
     """
     clips, camera = get_clips_from_path(Path(target))
-    #looking_for = Timecode('29.97', '11:40:01;05')
-    looking_for = Timecode('29.97', tc)
+    looking_for = Timecode(FPS, tc)
     print(looking_for)
     for clip in clips:
         if clip.suffix.lower() == '.mov':  # Quick way to get only Alexa quicktimes
-            stats = get_media_info(clip, 'A')
+            stats = get_media_info(clip)
             start_tc_frame = Timecode(FPS, stats['Start TC'])
             duration_frames = Timecode(FPS, start_timecode=None, frames=stats['Duration-Frames'])
             print('Start frame is: ' + str(start_tc_frame))
