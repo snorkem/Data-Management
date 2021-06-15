@@ -16,7 +16,7 @@ from utils.thumbnails import thumb_to_df
 # up all these garbage unused variables bellow.
 
 ##### Begin User Variables #####
-FPS = '29.97'  # FPS of timecode -- not the camera FPS
+FPS = '29.97'  # FPS of timecode track -- not the camera FPS!
 ##### End User Variables #####
 
 TEST_PATH = Path('/Volumes/S42 G-SPEED Shuttle XL/S42 TAPELESS MEDIA/ODA/DAY 18 - [18 OF X]/SDUU18AA')
@@ -65,13 +65,12 @@ def grab(target: str, tc: str):
     """
     :param target: Path to search for media files
     :param tc: Desired timecode of stills
-    :return: test
     """
     clips, camera = get_clips_from_path(Path(target))
     looking_for = Timecode(FPS, tc)
     print(looking_for)
     for clip in clips:
-        if clip.suffix.lower() == '.mov':  # Quick way to get only Alexa quicktimes
+        if clip.suffix.lower() == '.mov':  # Quick way to control for only Alexa quicktimes
             stats = get_media_info(clip)
             start_tc_frame = Timecode(FPS, stats['Start TC'])
             duration_frames = Timecode(FPS, start_timecode=None, frames=stats['Duration-Frames'])
@@ -85,6 +84,12 @@ def grab(target: str, tc: str):
                 abs_time.set_fractional(True)
                 print('Asking ffmpeg for frame: ' + str(abs_time))
                 make_thumb(clip, TEST_OUTPUT, abs_time, stats)
+            else:
+                print('Cannot find requested timecode in: ' + clip.name)
+        elif clip.suffix.lower() == '.mp4':
+            # Deal with A7s shit here
+        elif clip.suffix.lower() == '.mxf':
+            # Deal with sony and other mxf cameras here
 
 
 if __name__ == '__main__':

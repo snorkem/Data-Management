@@ -64,6 +64,7 @@ def get_startTC(video_path: Path, camera_letter):
         print('duration is: ' + str(duration_frames))
         return timecode_info
     else:
+        # Here we need to get timecode from other camera formats
 
 
 def get_media_info(file: Path, camera_letter=None):
